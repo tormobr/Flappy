@@ -7,15 +7,23 @@ WHITE = (255,255,255)
 LIGHT_BLUE = (135, 200, 250)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-G = 1
+G = 0.4
 SCREEN_WIDTH = 450
 SCREEN_HEIGHT = 600
+PIPE_DIST = 200
+START_PIPE_X = 300
+PIPE_WIDTH = 70
+a = []
+
 class Game:
     
     def __init__(self):
-        self.player = Bird(100,100, 10, 10)
+        self.player = Bird(100,100, 20, 15)
         self.speed = 0
-        self.pipes = [Pipe(300, 120, SCREEN_HEIGHT), Pipe(500, 120, SCREEN_HEIGHT), Pipe(700, 120, SCREEN_HEIGHT)]
+        self.score = 0
+        self.pipes = [Pipe(START_PIPE_X, 120, SCREEN_HEIGHT, PIPE_WIDTH), 
+        Pipe(START_PIPE_X + PIPE_DIST, 120, SCREEN_HEIGHT, PIPE_WIDTH), 
+        Pipe(START_PIPE_X +PIPE_DIST*2, 120, SCREEN_HEIGHT, PIPE_WIDTH)]
 
     def play(self):
         print("STARTING GAME!!")
@@ -44,30 +52,50 @@ class Game:
                     if e.key == pygame.K_ESCAPE:
                         running = False
                     if e.key == pygame.K_SPACE:
-                        self.speed = -10
+                        self.speed = -7
 
 
 
-            self.speed += G*0.4
-            self.player.move(self.speed)
-
-            for pipe in self.pipes:
-                pipe.move(3)
-
-            for pipe in self.pipes:
-                if pipe.top_rect.x + 70 < 0:
-                    self.pipes[0] = self.pipes[1]
-                    self.pipes[1] = self.pipes[2]
-                    self.pipes[2] = Pipe(self.pipes[1].top_rect.x+200, 100, SCREEN_HEIGHT)
+            self.move_items()
+            if self.collision():
+                running = False
 
             screen.fill(LIGHT_BLUE)
 
+
             pygame.draw.rect(screen, RED, self.player.rect)
+
 
             for pipe in self.pipes:
                 pygame.draw.rect(screen, GREEN, pipe.top_rect)
                 pygame.draw.rect(screen, GREEN, pipe.bottom_rect)
+
+
+            font = pygame.font.SysFont("comicsansms", 30)
+            text = font.render("Score: " + str(self.score), True, (0, 128, 0))
+            screen.blit(text,(0,0))
+
             pygame.display.flip()
+
+    def move_items(self):
+        self.speed += G
+        self.player.move(self.speed)
+
+        for pipe in self.pipes:
+            pipe.move(2)
+
+        if self.pipes[0].top_rect.x + PIPE_WIDTH < 0:
+            self.pipes[0] = self.pipes[1]
+            self.pipes[1] = self.pipes[2]
+            self.pipes[2] = Pipe(self.pipes[1].top_rect.x + PIPE_DIST, 120, SCREEN_HEIGHT, PIPE_WIDTH)
+            self.score += 1
+
+    def collision(self):
+        if self.player.rect.colliderect(self.pipes[0].top_rect) or self.player.rect.colliderect(self.pipes[0].bottom_rect):
+            return True
+        if self.player.rect.y < 0 or self.player.rect.y > SCREEN_HEIGHT:
+            return True
+        return False
 
 
 if __name__ == "__main__":
