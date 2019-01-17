@@ -2,6 +2,8 @@ import os
 import pygame
 from bird import Bird
 from pipe import Pipe
+from network import Network
+
 
 WHITE = (255,255,255)
 LIGHT_BLUE = (135, 200, 250)
@@ -13,17 +15,17 @@ SCREEN_HEIGHT = 600
 PIPE_DIST = 200
 START_PIPE_X = 300
 PIPE_WIDTH = 70
-a = []
 
 class Game:
     
     def __init__(self):
-        self.player = Bird(100,100, 20, 15)
+        self.player = Bird(100,100, 30, 20)
         self.speed = 0
         self.score = 0
         self.pipes = [Pipe(START_PIPE_X, 120, SCREEN_HEIGHT, PIPE_WIDTH), 
         Pipe(START_PIPE_X + PIPE_DIST, 120, SCREEN_HEIGHT, PIPE_WIDTH), 
         Pipe(START_PIPE_X +PIPE_DIST*2, 120, SCREEN_HEIGHT, PIPE_WIDTH)]
+        self.net = Network()
 
     def play(self):
         print("STARTING GAME!!")
@@ -58,17 +60,21 @@ class Game:
 
             self.move_items()
             if self.collision():
+                pass
                 running = False
 
             screen.fill(LIGHT_BLUE)
+            print(self.speed)
+            
+            rot_image = self.player.rot_center(-self.speed*2)
 
-
-            pygame.draw.rect(screen, RED, self.player.rect)
+            screen.blit(rot_image, (self.player.rect.x,self.player.rect.y))
 
 
             for pipe in self.pipes:
-                pygame.draw.rect(screen, GREEN, pipe.top_rect)
-                pygame.draw.rect(screen, GREEN, pipe.bottom_rect)
+
+                screen.blit(pipe.top_image, (pipe.top_rect.x,pipe.top_rect.y))
+                screen.blit(pipe.bottom_image, (pipe.bottom_rect.x,pipe.bottom_rect.y))
 
 
             font = pygame.font.SysFont("comicsansms", 30)
@@ -96,6 +102,7 @@ class Game:
         if self.player.rect.y < 0 or self.player.rect.y > SCREEN_HEIGHT:
             return True
         return False
+
 
 
 if __name__ == "__main__":
