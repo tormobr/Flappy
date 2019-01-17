@@ -3,7 +3,7 @@ import pygame
 from bird import Bird
 from pipe import Pipe
 from network import Network
-
+import time
 
 WHITE = (255,255,255)
 LIGHT_BLUE = (135, 200, 250)
@@ -15,6 +15,7 @@ SCREEN_HEIGHT = 600
 PIPE_DIST = 200
 START_PIPE_X = 300
 PIPE_WIDTH = 70
+PIPE_HEIGHT = 500
 
 class Game:
     
@@ -22,9 +23,9 @@ class Game:
         self.player = Bird(100,100, 30, 20)
         self.speed = 0
         self.score = 0
-        self.pipes = [Pipe(START_PIPE_X, 120, SCREEN_HEIGHT, PIPE_WIDTH), 
-        Pipe(START_PIPE_X + PIPE_DIST, 120, SCREEN_HEIGHT, PIPE_WIDTH), 
-        Pipe(START_PIPE_X +PIPE_DIST*2, 120, SCREEN_HEIGHT, PIPE_WIDTH)]
+        self.pipes = [Pipe(START_PIPE_X, 120, SCREEN_HEIGHT, PIPE_HEIGHT, PIPE_WIDTH), 
+        Pipe(START_PIPE_X + PIPE_DIST, 120, SCREEN_HEIGHT, PIPE_HEIGHT, PIPE_WIDTH), 
+        Pipe(START_PIPE_X +PIPE_DIST*2, 120, SCREEN_HEIGHT, PIPE_HEIGHT, PIPE_WIDTH)]
         self.net = Network()
 
     def play(self):
@@ -38,12 +39,14 @@ class Game:
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
         clock = pygame.time.Clock()
-
-
+        top_back = pygame.image.load('static/top_back.png').convert_alpha()
+        bottom_back = pygame.image.load('static/bottom_back.png').convert_alpha()
+        bottom_x = [0, bottom_back.get_rect().width-5]
 
 
         running = True
         while running:
+            
             
             clock.tick(60)
             
@@ -60,12 +63,10 @@ class Game:
 
             self.move_items()
             if self.collision():
-                pass
                 running = False
 
-            screen.fill(LIGHT_BLUE)
-            print(self.speed)
             
+            screen.blit(top_back, (0,0))
             rot_image = self.player.rot_center(-self.speed*2)
 
             screen.blit(rot_image, (self.player.rect.x,self.player.rect.y))
@@ -78,11 +79,21 @@ class Game:
 
 
             font = pygame.font.SysFont("comicsansms", 30)
-            text = font.render("Score: " + str(self.score), True, (0, 128, 0))
+            text = font.render("Score: " + str(self.score), True, (RED))
             screen.blit(text,(0,0))
 
-            pygame.display.flip()
+            bottom_x[0] -= 2
+            bottom_x[1] -= 2
+            if bottom_x[0] + bottom_back.get_rect().width < 0:
+                tmp = bottom_x[0]
+                bottom_x[0] = bottom_x[1]
+                bottom_x[1] += bottom_back.get_rect().width-5
 
+            screen.blit(bottom_back, (bottom_x[0],top_back.get_rect().height+5))
+            screen.blit(bottom_back, (bottom_x[1],top_back.get_rect().height+5))
+
+            pygame.display.flip()
+        self.end(screen)
     def move_items(self):
         self.speed += G
         self.player.move(self.speed)
@@ -93,16 +104,23 @@ class Game:
         if self.pipes[0].top_rect.x + PIPE_WIDTH < 0:
             self.pipes[0] = self.pipes[1]
             self.pipes[1] = self.pipes[2]
-            self.pipes[2] = Pipe(self.pipes[1].top_rect.x + PIPE_DIST, 120, SCREEN_HEIGHT, PIPE_WIDTH)
+            self.pipes[2] = Pipe(self.pipes[1].top_rect.x + PIPE_DIST, 120, SCREEN_HEIGHT, PIPE_HEIGHT, PIPE_WIDTH)
             self.score += 1
+
 
     def collision(self):
         if self.player.rect.colliderect(self.pipes[0].top_rect) or self.player.rect.colliderect(self.pipes[0].bottom_rect):
             return True
-        if self.player.rect.y < 0 or self.player.rect.y > SCREEN_HEIGHT:
+        if self.player.rect.y < 0 or self.player.rect.y > SCREEN_HEIGHT - 150:
             return True
         return False
 
+    def end(self,screen):
+        font = pygame.font.SysFont("comicsansms", 80)
+        text = font.render("Score: " + str(self.score), True, (WHITE))
+        screen.blit(text,(SCREEN_WIDTH/2-50,SCREEN_HEIGHT/2-100))
+        pygame.display.flip()
+        time.sleep(5)
 
 
 if __name__ == "__main__":
