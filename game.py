@@ -43,8 +43,32 @@ class Game:
         bottom_back = pygame.image.load('static/bottom_back.png').convert_alpha()
         bottom_x = [0, bottom_back.get_rect().width-5]
 
+        running = False
 
-        running = True
+        while not running:
+
+        	clock.tick(60)
+        	screen.blit(top_back, (0,0))
+        	rot_image = self.player.rot_center(-self.speed*2)
+        	screen.blit(rot_image, (self.player.rect.x,self.player.rect.y))
+        	for pipe in self.pipes:
+        		screen.blit(pipe.top_image, (pipe.top_rect.x,pipe.top_rect.y))
+        		screen.blit(pipe.bottom_image, (pipe.bottom_rect.x,pipe.bottom_rect.y))
+        	screen.blit(bottom_back, (bottom_x[0],top_back.get_rect().height+5))
+        	screen.blit(bottom_back, (bottom_x[1],top_back.get_rect().height+5))
+
+
+        	pygame.display.flip()
+	        for e in pygame.event.get():
+
+	            if e.type == pygame.KEYDOWN:
+	                if e.key == pygame.K_ESCAPE:
+	                    running = False
+	                if e.key == pygame.K_SPACE:
+	                    self.speed = -7
+
+	                    running =True
+	        
         while running:
             
             
@@ -120,7 +144,7 @@ class Game:
         text = font.render("Score: " + str(self.score), True, (WHITE))
         screen.blit(text,(SCREEN_WIDTH/2-50,SCREEN_HEIGHT/2-100))
         pygame.display.flip()
-        time.sleep(5)
+        time.sleep(.5)
 
 
 if __name__ == "__main__":
