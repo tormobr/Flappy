@@ -2,7 +2,6 @@ import os
 import pygame
 from bird import Bird
 from pipe import Pipe
-from network import Network
 import time
 
 WHITE = (255,255,255)
@@ -26,7 +25,6 @@ class Game:
         self.pipes = [Pipe(START_PIPE_X, 120, SCREEN_HEIGHT, PIPE_HEIGHT, PIPE_WIDTH), 
         Pipe(START_PIPE_X + PIPE_DIST, 120, SCREEN_HEIGHT, PIPE_HEIGHT, PIPE_WIDTH), 
         Pipe(START_PIPE_X +PIPE_DIST*2, 120, SCREEN_HEIGHT, PIPE_HEIGHT, PIPE_WIDTH)]
-        self.net = Network()
 
     def play(self):
         print("STARTING GAME!!")
@@ -144,7 +142,7 @@ class Game:
         text = font.render("Score: " + str(self.score), True, (WHITE))
         screen.blit(text,(SCREEN_WIDTH/2-50,SCREEN_HEIGHT/2-100))
         pygame.display.flip()
-        time.sleep(.5)
+        time.sleep(50)
 
 
 if __name__ == "__main__":
