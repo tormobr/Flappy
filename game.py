@@ -142,7 +142,7 @@ class Game:
         text = font.render("Score: " + str(self.score), True, (WHITE))
         screen.blit(text,(SCREEN_WIDTH/2-50,SCREEN_HEIGHT/2-100))
         pygame.display.flip()
-        time.sleep(50)
+        time.sleep(1)
 
 
 if __name__ == "__main__":
